@@ -12,7 +12,7 @@
 namespace matrix {
     using namespace std;
 
-    template<typename T, uint x_dim, uint y_dim>
+    template<typename T, uint x_dim = 0, uint y_dim = 0>
     class Matrix {
         static_assert(x_dim > 0 && y_dim > 0, "A matrix with dimension less than 1 is not allowed");
 
@@ -28,7 +28,7 @@ namespace matrix {
         Matrix(const Matrix<T, x_dim, y_dim> &other) {
             for (uint i = 0; i < x_dim; i++)
                 for (uint j = 0; j < y_dim; j++)
-                    content[i][j] = other.content[i][j];
+                    (*this)[i][j] = other.content[i][j];
         }
 
         //从一个一维数组创建矩阵，可以使用{}初始化列表
@@ -38,7 +38,7 @@ namespace matrix {
                     content[i][j] = array[i * y_dim + j];
         }
 
-        //从一个一维数组创建矩阵，可以使用{}初始化列表
+        //从一个指针创建矩阵
         Matrix(T *array) {
             for (uint i = 0; i < x_dim; i++)
                 for (uint j = 0; j < y_dim; j++)
@@ -112,17 +112,59 @@ namespace matrix {
 
         template<uint x, uint y>
         Matrix<T, x, y> &reshape() {
-            static_assert(x*y==x_dim*y_dim,"INVALID_PARAMETERS:x*y does not equal to the original size");
+            static_assert(x * y == x_dim * y_dim, "INVALID_PARAMETERS:x*y does not equal to the original size");
 
             auto &self = *this;
             return (Matrix<T, y, x> &) self;
         }
 
+
     };
 
+    //todo
+    template<typename T>
+    class Matrix<T, 0, 0> {
+
+    public:
+        T *content;
+        uint x;
+        uint y;
+
+
+        template<uint x_dim, uint y_dim>
+        static Matrix<T> dyn(const T (&arr)[x_dim * y_dim]) {
+            return Matrix<T>(arr, x_dim, y_dim);
+        }
+
+        Matrix():content(nullptr),x(0),y(0){}
+
+        //移动构造函数
+        Matrix(Matrix<T>&& other) noexcept:content(other.content),x(other.x),y(other.y) {
+            other.content= nullptr;
+        }
+
+        Matrix<T>& operator=(Matrix<T> other){
+            swap(content,other.content);
+            x=other.x;
+            y=other.y;
+
+            return (*this);
+        }
+
+        Matrix(const T (&arr)[], uint x_dim, uint y_dim) : content(new T[x_dim * y_dim]), x(x_dim), y(y_dim) {
+            for (uint i = 0; i < x_dim; i++)
+                for (uint j = 0; j < y_dim; j++)
+                    content[i * y_dim + j] = arr[i * y_dim + j];
+        }
+
+        ~Matrix(){
+            if(content)
+                delete[] content;
+        }
+    };
 
     template<typename T, uint x, uint y>
-    ostream &operator<<(ostream &out, Matrix<T, x, y> mat) {
+    ostream &operator<<(ostream &out, const Matrix<T, x, y> &mat) {
         for (uint i = 0; i < x; i++) {
             for (uint j = 0; j < y; j++)
                 out << mat.content[i][j] << '\t';
@@ -132,6 +174,19 @@ namespace matrix {
 
         return out;
     }
+
+    template<class T>
+    ostream &operator<<(ostream &out, const Matrix<T> &mat) {
+        for (uint i = 0; i < mat.x; i++) {
+            for (uint j = 0; j < mat.y; j++)
+                out << mat.content[i * mat.y + j] << '\t';
+
+            out << endl;
+        }
+
+        return out;
+    }
 }
+
 
 #endif //MATRIX_STATIC_MATRIX_HPP

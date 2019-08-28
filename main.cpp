@@ -4,10 +4,18 @@
 using namespace matrix;
 
 int main() {
+    int c_arr[] = {1, 2, 2, 1};
+
     Matrix<int, 2, 2> a({1, 1, 1, 1});
     Matrix<float, 2, 2> b({1.0f, 2.0f, 3.5f, 4.0f});
 
-    cout << a + b<<endl;
-    cout<<a*b;
+    Matrix<int> c = Matrix<int>::dyn<2, 2>({1, 2, 2, 1});
+
+
+    cout << a + b << endl;
+    cout << a * b << endl;
+
+    cout << c << endl;
+
     return 0;
 }
