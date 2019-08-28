@@ -17,8 +17,8 @@ namespace matrix {
         static_assert(x_dim > 0 && y_dim > 0, "A matrix with dimension less than 1 is not allowed");
 
 
-        typedef const T (&T_arr)[x_dim * y_dim];
-        typedef T (&row)[y_dim];
+        using T_arr=const T (&)[x_dim*y_dim];
+        using row= T (&)[y_dim];
     public:
         T content[x_dim][y_dim];
 
@@ -125,6 +125,14 @@ namespace matrix {
     template<typename T>
     class Matrix<T, 0, 0> {
 
+        using Self=Matrix<T>;
+
+        //拷贝构造函数
+        Matrix(const Self& other):x(other.x),y(other.y),content(new T[x * y]){
+            for (uint i = 0; i < x; i++)
+                for (uint j = 0; j < y; j++)
+                    content[i * y + j] = other.content[i * y + j];
+        };
     public:
         T *content;
         uint x;
@@ -132,18 +140,23 @@ namespace matrix {
 
 
         template<uint x_dim, uint y_dim>
-        static Matrix<T> dyn(const T (&arr)[x_dim * y_dim]) {
+        static Self dyn(const T (&arr)[x_dim * y_dim]) {
             return Matrix<T>(arr, x_dim, y_dim);
         }
 
-        Matrix():content(nullptr),x(0),y(0){}
-
-        //移动构造函数
-        Matrix(Matrix<T>&& other) noexcept:content(other.content),x(other.x),y(other.y) {
-            other.content= nullptr;
+        Self clone(){
+            return Matrix(*this);
         }
 
-        Matrix<T>& operator=(Matrix<T> other){
+        //移动构造函数
+        Matrix(Self&& other) noexcept:content(other.content),x(other.x),y(other.y) {
+            other.content= nullptr;
+            other.x=0;
+            other.y=0;
+        }
+
+        //用于赋值
+        Self& operator=(Self other){
             swap(content,other.content);
             x=other.x;
             y=other.y;
@@ -151,7 +164,13 @@ namespace matrix {
             return (*this);
         }
 
-        Matrix(const T (&arr)[], uint x_dim, uint y_dim) : content(new T[x_dim * y_dim]), x(x_dim), y(y_dim) {
+        //todo:检查以保证x_dim与y_dim大于0
+        Matrix(const T arr[], uint x_dim, uint y_dim) : content(new T[x_dim * y_dim]), x(x_dim), y(y_dim) {
+            if(x_dim==0||y_dim==0){
+                clog<<"x_dim or y_dim is equal to 0"<<endl;
+                abort();
+            }
+
             for (uint i = 0; i < x_dim; i++)
                 for (uint j = 0; j < y_dim; j++)
                     content[i * y_dim + j] = arr[i * y_dim + j];
