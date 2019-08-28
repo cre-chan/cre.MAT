@@ -59,6 +59,20 @@ namespace matrix {
             return ret;
         }
 
+        //加法，仅适用于x_dim与y_dim均对应情况
+        template<typename E, typename R=decltype(declval<T>() + declval<E>())>
+        constexpr Matrix<R, x_dim, y_dim> operator-(const Matrix<E, x_dim, y_dim> &right) const {
+            Matrix<R, x_dim, y_dim> ret;
+
+
+            for (uint i = 0; i < x_dim; i++)
+                for (uint j = 0; j < y_dim; j++)
+                    ret[i][j] = content[i][j] - right.content[i][j];
+
+
+            return ret;
+        }
+
         //乘法，仅针对
         template<typename E, typename R=decltype(declval<T>() * declval<E>()), uint other_y_dim>
         constexpr Matrix<R, x_dim, other_y_dim> operator*(const Matrix<E, y_dim, other_y_dim> &other) const {
@@ -97,7 +111,9 @@ namespace matrix {
         }
 
         template<uint x, uint y>
-        Matrix<T, y, x> &reshape() {
+        Matrix<T, x, y> &reshape() {
+            static_assert(x*y==x_dim*y_dim,"INVALID_PARAMETERS:x*y does not equal to the original size");
+
             auto &self = *this;
             return (Matrix<T, y, x> &) self;
         }
