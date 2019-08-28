@@ -3,4 +3,6 @@ project(Matrix)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Matrix main.cpp)
+include_directories(Matrix includes)
+
+add_executable(Matrix main.cpp includes/static_matrix.hpp)
