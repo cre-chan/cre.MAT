@@ -16,7 +16,9 @@ int main() {
     cout << a * b << endl;
 
     cout << c << endl;
-    cout<<c.clone()<<endl;
+
+    cout << c.clone() << endl;
+
 
     return 0;
 }

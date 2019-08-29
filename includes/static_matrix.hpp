@@ -128,11 +128,13 @@ namespace matrix {
         using Self=Matrix<T>;
 
         //拷贝构造函数
-        Matrix(const Self& other):x(other.x),y(other.y),content(new T[x * y]){
+        Matrix(const Self& other):x(other.x),y(other.y),content(new T[other.x * other.y]){
             for (uint i = 0; i < x; i++)
                 for (uint j = 0; j < y; j++)
                     content[i * y + j] = other.content[i * y + j];
         };
+
+
     public:
         T *content;
         uint x;
@@ -144,7 +146,9 @@ namespace matrix {
             return Matrix<T>(arr, x_dim, y_dim);
         }
 
+        //todo 解决bad_alloc问题
         Self clone(){
+            //拷贝构造函数
             return Matrix(*this);
         }
 
