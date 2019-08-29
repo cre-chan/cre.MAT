@@ -19,13 +19,14 @@ namespace matrix {
 
         using T_arr=const T (&)[x_dim*y_dim];
         using row= T (&)[y_dim];
+        using Self=Matrix<T,x_dim,y_dim>;
     public:
         T content[x_dim][y_dim];
 
         Matrix() = default;
 
         //拷贝构造器
-        Matrix(const Matrix<T, x_dim, y_dim> &other) {
+        Matrix(const Self &other) {
             for (uint i = 0; i < x_dim; i++)
                 for (uint j = 0; j < y_dim; j++)
                     (*this)[i][j] = other.content[i][j];
