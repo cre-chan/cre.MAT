@@ -12,6 +12,8 @@ int main() {
     Matrix<int> c = Matrix<int>::dyn<2, 2>({1, 2, 2, 1});
 
 
+
+
     cout << a + b << endl;
     cout << a * b << endl;
 

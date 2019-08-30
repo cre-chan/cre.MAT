@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <stdexcept>
 
+//todo 创建足够数量的单元测试
+
 namespace matrix {
     using namespace std;
 
@@ -116,10 +118,22 @@ namespace matrix {
             static_assert(x * y == x_dim * y_dim, "INVALID_PARAMETERS:x*y does not equal to the original size");
 
             auto &self = *this;
-            return (Matrix<T, y, x> &) self;
+
+            return static_cast<Matrix<T, y, x> &>(self);
         }
 
+        //对固定维度数组重载的流输出
+        template<uint x, uint y>
+        friend ostream &operator<<(ostream &out, const Matrix<T, x, y> &mat) {
+            for (uint i = 0; i < x; i++) {
+                for (uint j = 0; j < y; j++)
+                    out << mat.content[i][j] << '\t';
 
+                out << endl;
+            }
+
+            return out;
+        }
     };
 
     //todo
@@ -147,7 +161,6 @@ namespace matrix {
             return Matrix<T>(arr, x_dim, y_dim);
         }
 
-        //todo 解决bad_alloc问题
         Self clone(){
             //拷贝构造函数
             return Matrix(*this);
@@ -169,7 +182,6 @@ namespace matrix {
             return (*this);
         }
 
-        //todo:检查以保证x_dim与y_dim大于0
         Matrix(const T arr[], uint x_dim, uint y_dim) : content(new T[x_dim * y_dim]), x(x_dim), y(y_dim) {
             if(x_dim==0||y_dim==0){
                 clog<<"x_dim or y_dim is equal to 0"<<endl;
@@ -185,31 +197,21 @@ namespace matrix {
             if(content)
                 delete[] content;
         }
+
+        //对动态维度矩阵重载的输出运算符
+        friend ostream &operator<<(ostream &out, const Matrix<T> &mat) {
+            for (uint i = 0; i < mat.x; i++) {
+                for (uint j = 0; j < mat.y; j++)
+                    out << mat.content[i * mat.y + j] << '\t';
+
+                out << endl;
+            }
+
+            return out;
+        }
     };
 
-    template<typename T, uint x, uint y>
-    ostream &operator<<(ostream &out, const Matrix<T, x, y> &mat) {
-        for (uint i = 0; i < x; i++) {
-            for (uint j = 0; j < y; j++)
-                out << mat.content[i][j] << '\t';
 
-            out << endl;
-        }
-
-        return out;
-    }
-
-    template<class T>
-    ostream &operator<<(ostream &out, const Matrix<T> &mat) {
-        for (uint i = 0; i < mat.x; i++) {
-            for (uint j = 0; j < mat.y; j++)
-                out << mat.content[i * mat.y + j] << '\t';
-
-            out << endl;
-        }
-
-        return out;
-    }
 }
 
 
